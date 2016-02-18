@@ -51,7 +51,7 @@ public class RajawaliRipplesRenderer extends RajawaliRenderer{
 //	private Animation3D[] mAnims;
 	private TouchRippleFilter mFilter;
 	private long frameCount;
-	private final int QUAD_SEGMENTS = 40;
+	private final int QUAD_SEGMENTS = 44;
 	private Point mScreenSize;	
 
 	//private String imageFile;
