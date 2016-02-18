@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="list_array_entry">
+        <item>HSV</item>
+        <item>White Balance</item>
+    </string-array>
+    <string-array name="list_array_value">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="list_array_qualities">
+        <item>VERY LOW</item>
+        <item>LOW</item>
+        <item>MEDIUM</item>
+        <item>HIGH</item>
+    </string-array>
+</resources>

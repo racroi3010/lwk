@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Kpop Wall</string>
+    <string name="app_author">Hanaone Media</string>
+    <string name="app_description">A beautiful Home and Lock Screen</string>
+    <string name="setting_titles">Setting</string>
+    <string name="picker_toast_prefix">Choose \"</string>
+    <string name="picker_toast_suffix">\" from the list of live wallpapers</string>
+    <string name="title_activity_image_processing">ImageProcessingActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

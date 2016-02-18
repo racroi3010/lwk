@@ -1,0 +1,27 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="rajawalisharedprefs"
+    android:title="@string/setting_titles" >
+
+    <PreferenceCategory>
+    </PreferenceCategory>
+
+    <EditTextPreference
+        android:key="edit_text"
+        android:summary="Edit text preference summary"
+        android:title="edit text preference title" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="check_box"
+        android:summary="check box preference summary"
+        android:title="check box preference title" />
+
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/list_array_entry"
+        android:entryValues="@array/list_array_value"
+        android:key="list"
+        android:summary="list preference summary"
+        android:title="list preference title" />
+
+</PreferenceScreen>
