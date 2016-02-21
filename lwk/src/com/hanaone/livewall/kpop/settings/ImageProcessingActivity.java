@@ -289,53 +289,78 @@ public class ImageProcessingActivity extends PreferenceActivity {
 	private void InitThumbnail(){
 		
 		filterDataSet.clear();			
-		int[] src = AndroidUtils.bitmapToIntArray(imgThumbnail);
-		int width = imgThumbnail.getWidth();
-		int height = imgThumbnail.getHeight();
+//		int[] src = AndroidUtils.bitmapToIntArray(imgThumbnail);
+//		int width = imgThumbnail.getWidth();
+//		int height = imgThumbnail.getHeight();
 		
 		
-		mSolarizeFilter = new SolarizeFilter();
-		int[] dest = mSolarizeFilter.filter(src, width, height);
-		Bitmap desBitmap = Bitmap.createBitmap(dest, width, height, Config.ARGB_8888);
+//		mSolarizeFilter = new SolarizeFilter();
+//		int[] dest = mSolarizeFilter.filter(src, width, height);
+//		Bitmap desBitmap = Bitmap.createBitmap(dest, width, height, Config.ARGB_8888);
+//		FilterData data = new FilterData();
+//		data.setType(0);
+//		data.setBitmap(desBitmap);		
+//		filterDataSet.add(data);
+//		
+//		
+//		mAmaro = new Amaro();
+//		desBitmap = mAmaro.transform(imgThumbnail);
+//		data = new FilterData();
+//		data.setType(1);
+//		data.setBitmap(desBitmap);		
+//		filterDataSet.add(data);
+//		
+//		mEarlyBird = new EarlyBird();
+//		desBitmap = mEarlyBird.transform(imgThumbnail, getResources());
+//		data = new FilterData();
+//		data.setType(2);
+//		data.setBitmap(desBitmap);		
+//		filterDataSet.add(data);
+//		
+//		mLomoFi = new LomoFi();
+//		desBitmap = mLomoFi.transform(imgThumbnail);
+//		data = new FilterData();
+//		data.setType(3);
+//		data.setBitmap(desBitmap);		
+//		filterDataSet.add(data);		
+//		
+//		
+//		// Han Filter
+//		for(int i = 1; i < 36; i ++){
+//			mHanFilter = new HanFilter();
+//			mHanFilter.setFilterType(i);
+//			desBitmap = mHanFilter.transform(imgThumbnail);
+//			data = new FilterData();
+//			data.setType(4);
+//			data.setHanType(i);
+//			data.setBitmap(desBitmap);		
+//			filterDataSet.add(data);				
+//		}	
+		
+		File dir = getDir("KPOP", Context.MODE_PRIVATE);
+		String input = dir.getAbsolutePath() + "thum.jpg";
+		try {
+			FileOutputStream os = new FileOutputStream(new File(input));
+			imgThumbnail.compress(CompressFormat.JPEG, 100, os);
+			os.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		String output = dir.getAbsolutePath() + "thum_out.jpg";
+		
+		
+		ImageFilter mImageFilter = new ImageFilter();
+		mImageFilter.filterCurves(input, output);
+		
+		Bitmap desBitmap = BitmapFactory.decodeFile(output);
 		FilterData data = new FilterData();
 		data.setType(0);
 		data.setBitmap(desBitmap);		
-		filterDataSet.add(data);
-		
-		
-		mAmaro = new Amaro();
-		desBitmap = mAmaro.transform(imgThumbnail);
-		data = new FilterData();
-		data.setType(1);
-		data.setBitmap(desBitmap);		
-		filterDataSet.add(data);
-		
-		mEarlyBird = new EarlyBird();
-		desBitmap = mEarlyBird.transform(imgThumbnail, getResources());
-		data = new FilterData();
-		data.setType(2);
-		data.setBitmap(desBitmap);		
-		filterDataSet.add(data);
-		
-		mLomoFi = new LomoFi();
-		desBitmap = mLomoFi.transform(imgThumbnail);
-		data = new FilterData();
-		data.setType(3);
-		data.setBitmap(desBitmap);		
 		filterDataSet.add(data);		
-		
-		
-		// Han Filter
-		for(int i = 1; i < 36; i ++){
-			mHanFilter = new HanFilter();
-			mHanFilter.setFilterType(i);
-			desBitmap = mHanFilter.transform(imgThumbnail);
-			data = new FilterData();
-			data.setType(4);
-			data.setHanType(i);
-			data.setBitmap(desBitmap);		
-			filterDataSet.add(data);				
-		}	
 		
 		filterAdapter.setmDataSet(filterDataSet);
 	}
@@ -379,7 +404,9 @@ public class ImageProcessingActivity extends PreferenceActivity {
 			int[] src = AndroidUtils.bitmapToIntArray(img);
 			int width = img.getWidth();
 			int height = img.getHeight();
-			int[] dest = mSolarizeFilter.filter(src, width, height);			
+			int[] dest = mSolarizeFilter.filter(src, width, height);		
+			
+			
 			switch (data.getType()) {
 			case 0:
 

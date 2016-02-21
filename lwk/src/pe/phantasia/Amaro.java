@@ -63,7 +63,7 @@ public class Amaro extends Filter {
 
         r.y = new float[] {26.0f, 43.f, 64f, 114f, 148f, 177f, 193f, 202f, 208f, 218f, 229f, 241f, 251f};
         r.x = new float[] {0f, 15f, 32f, 65f, 83f, 109f, 127f, 146f, 170f, 195f, 215f, 234f, 255f };
-
+        
         for(int i = 0 ;i<r.x.length;i++) {
             r.x[i] = (r.x[i]*100)/255/100;
             r.y[i] = (r.y[i]*100)/255/100;
