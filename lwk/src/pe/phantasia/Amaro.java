@@ -1,6 +1,11 @@
 package pe.phantasia;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,8 +15,11 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.Shader;
+import android.graphics.Bitmap.CompressFormat;
 import android.util.Log;
 
+import com.hanaone.ip.Constants;
+import com.hanaone.ip.ImageFilter;
 import com.jabistudio.androidjhlabs.filter.Curve;
 import com.jabistudio.androidjhlabs.filter.CurvesFilter;
 import com.jabistudio.androidjhlabs.filter.util.AndroidUtils;
@@ -44,6 +52,27 @@ public class Amaro extends Filter {
         Bitmap gradient = createRadialGradient();
 
         return combineGrandientAndImage(gradient, levels, PorterDuff.Mode.OVERLAY);
+    }
+    
+    public void transform(String input, String output){
+    	ImageFilter filter = new ImageFilter();
+    	String curOut = Constants.PATH + "img_curs_out.jpg";
+    	filter.filterCurves(input, curOut);
+    	levels = BitmapFactory.decodeFile(curOut);
+    	
+    	width = levels.getWidth();
+    	height = levels.getHeight();
+    	
+    	Bitmap gradient = createRadialGradient();
+    	Bitmap outBmp = combineGrandientAndImage(gradient, levels, PorterDuff.Mode.OVERLAY);
+    	
+    	try {
+			FileOutputStream os = new FileOutputStream(new File(output));
+			outBmp.compress(CompressFormat.JPEG, 100, os);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     private CurvesFilter getLevelsFilter(){

@@ -18,6 +18,7 @@ import uk.co.senab.photoview.PhotoViewAttacher;
 import com.devsmart.android.ui.HorizontalListView;
 import com.hanaone.livewall.kpop.R;
 
+import com.hanaone.ip.Constants;
 import com.hanaone.ip.ImageFilter;
 import com.hanaone.livewall.kpop.settings.adapter.GridImageAdapter;
 import com.hanaone.livewall.kpop.settings.adapter.ImageListener;
@@ -75,6 +76,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.Config;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -98,15 +100,15 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 public class ImageProcessingActivity extends PreferenceActivity {
-	private Bitmap img;
-	private Bitmap imgThumbnail;
+//	private Bitmap img;
+//	private Bitmap imgThumbnail;
 	private Context mContext;
 	private ImageView imgView;
-	private SolarizeFilter mSolarizeFilter;
-	private Amaro mAmaro;
-	private EarlyBird mEarlyBird;
-	private LomoFi mLomoFi;
-	private HanFilter mHanFilter;
+//	private SolarizeFilter mSolarizeFilter;
+//	private Amaro mAmaro;
+//	private EarlyBird mEarlyBird;
+//	private LomoFi mLomoFi;
+//	private HanFilter mHanFilter;
 	
 	private List<ImageData> dataSet;
 	private List<FilterData> filterDataSet;
@@ -156,10 +158,34 @@ public class ImageProcessingActivity extends PreferenceActivity {
 		
 		
 		imgView = (ImageView) findViewById(R.id.img_view);	
-		img = BitmapFactory.decodeResource(getResources(), R.drawable.iu);
-		imgView.setImageBitmap(img);
 		
-		imgThumbnail = ImageUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.iu, 50, 50);
+		// copy original image
+		for(int i = 0; i < Constants.IMAGE_DATA.length; i ++){
+			File file = new File(Constants.PATH + Constants.IMAGE_DATA[i]);
+			if(!file.exists()){
+				try {
+					InputStream is = getAssets().open(Constants.IMAGE_DATA[i]);
+					FileOutputStream os = new FileOutputStream(file);
+					byte[] buf = new byte[2014];
+					int read = 0;
+					while((read = is.read(buf)) > 0){
+						os.write(buf, 0, read);
+					}
+					os.close();
+					is.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		}
+		
+		
+//		img = BitmapFactory.decodeResource(getResources(), R.drawable.iu);
+//		imgView.setImageBitmap(img);
+		
+//		imgThumbnail = ImageUtils.decodeSampledBitmapFromResource(getResources(), R.drawable.iu, 50, 50);
 		//
 		
 		
@@ -193,7 +219,8 @@ public class ImageProcessingActivity extends PreferenceActivity {
 			
 		});
 		
-		InitThumbnail();
+		InitThumbnail(Constants.PATH + Constants.IMAGE_DATA[0]);
+		imgView.setImageBitmap(BitmapFactory.decodeFile(Constants.PATH + Constants.IMAGE_DATA[0]));
 		
 		PhotoViewAttacher mAttacher = new PhotoViewAttacher(imgView);
         mAttacher.setScaleType(ScaleType.FIT_XY);		
@@ -268,12 +295,14 @@ public class ImageProcessingActivity extends PreferenceActivity {
 		
 		@Override
 		public void onSelect(int position) {
-			ImageData data = dataSet.get(position);
-			img = BitmapFactory.decodeResource(getResources(), data.getId());
-			imgView.setImageBitmap(img);
-			imgThumbnail = ImageUtils.decodeSampledBitmapFromResource(getResources(), data.getId(), 50, 50);
-			InitThumbnail();
-			dialog.dismiss();
+//			ImageData data = dataSet.get(position);
+//			img = BitmapFactory.decodeResource(getResources(), data.getId());
+//			imgView.setImageBitmap(img);
+//			imgThumbnail = ImageUtils.decodeSampledBitmapFromResource(getResources(), data.getId(), 50, 50);
+//			
+//			
+//			InitThumbnail("");
+//			dialog.dismiss();
 		}
 	};
 	
@@ -286,7 +315,7 @@ public class ImageProcessingActivity extends PreferenceActivity {
 	};
 	
 	
-	private void InitThumbnail(){
+	private void InitThumbnail(String orgImagePath){
 		
 		filterDataSet.clear();			
 //		int[] src = AndroidUtils.bitmapToIntArray(imgThumbnail);
@@ -337,31 +366,27 @@ public class ImageProcessingActivity extends PreferenceActivity {
 //			filterDataSet.add(data);				
 //		}	
 		
-		File dir = getDir("KPOP", Context.MODE_PRIVATE);
-		String input = dir.getAbsolutePath() + "thum.jpg";
+		Bitmap thumImg = ImageUtils.decodeSampledBitmapFromFile(orgImagePath, 50, 50);
+		String input = Constants.PATH+ "thum.jpg";
 		try {
 			FileOutputStream os = new FileOutputStream(new File(input));
-			imgThumbnail.compress(CompressFormat.JPEG, 100, os);
-			os.close();
+			thumImg.compress(CompressFormat.JPEG, 100, os);
+			
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
-		String output = dir.getAbsolutePath() + "thum_out.jpg";
 		
+		String output = Constants.PATH + "thum_amaro.jpg";
 		
-		ImageFilter mImageFilter = new ImageFilter();
-		mImageFilter.filterCurves(input, output);
-		
+		Amaro mAmaro = new Amaro();
+		mAmaro.transform(input, output);
 		Bitmap desBitmap = BitmapFactory.decodeFile(output);
+		
 		FilterData data = new FilterData();
 		data.setType(0);
-		data.setBitmap(desBitmap);		
+		data.setBitmap(desBitmap);
 		filterDataSet.add(data);		
-		
 		filterAdapter.setmDataSet(filterDataSet);
 	}
 	
@@ -391,134 +416,161 @@ public class ImageProcessingActivity extends PreferenceActivity {
 
 			SharedPreferences mPrefence = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 			Editor editor = mPrefence.edit();	
-			
-			
-			
-			String path = Environment.getExternalStorageDirectory().getPath() + "/KPOP/";
-			File dir = new File(path);
-			if(!dir.exists()){
-				dir.mkdirs();
-			}			
-			String filePath = path + "img_out.jpg";
-			
-			int[] src = AndroidUtils.bitmapToIntArray(img);
-			int width = img.getWidth();
-			int height = img.getHeight();
-			int[] dest = mSolarizeFilter.filter(src, width, height);		
-			
-			
+			String output = Constants.PATH + "img_out.jpg";
+			String input = Constants.PATH + Constants.IMAGE_DATA[0];
 			switch (data.getType()) {
 			case 0:
-
-				Bitmap desBitmap = Bitmap.createBitmap(dest, width, height, Config.ARGB_8888);	
-
+				Amaro amaroFilter = new Amaro();
+//				amaroFilter.transform(input, output);
+				Bitmap bmp = BitmapFactory.decodeFile(input);
+				Bitmap desBitmap = amaroFilter.transform(bmp);	
+				
 
 				editor.putBoolean("change", true);
 								
 
-				
-				
 				try {
-					FileOutputStream os = new FileOutputStream(new File(filePath));
-					desBitmap.compress(CompressFormat.JPEG, 100, os);
-					
+					FileOutputStream os = new FileOutputStream(new File(output));
+					desBitmap.compress(CompressFormat.JPEG, 100, os);				
 
-					editor.putString("path", filePath);
+					editor.putString("path", output);
 					editor.commit();
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}											
-				
+				}	
 				break;
-			case 1:
 
-				desBitmap = mAmaro.transform(img);	
-				
-
-				editor.putBoolean("change", true);
-								
-
-				try {
-					FileOutputStream os = new FileOutputStream(new File(filePath));
-					desBitmap.compress(CompressFormat.JPEG, 100, os);				
-
-					editor.putString("path", filePath);
-					editor.commit();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}											
-				
-				break;
-			case 2:
-
-				desBitmap = mEarlyBird.transform(img, getResources());	
-
-
-				editor.putBoolean("change", true);
-								
-
-				try {
-					FileOutputStream os = new FileOutputStream(new File(filePath));
-					desBitmap.compress(CompressFormat.JPEG, 100, os);				
-
-					editor.putString("path", filePath);
-					editor.commit();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}											
-				
-				break;
-			case 3:
-
-				
-				desBitmap = mLomoFi.transform(img);	
-				
-
-				editor.putBoolean("change", true);
-								
-
-				try {
-					FileOutputStream os = new FileOutputStream(new File(filePath));
-					desBitmap.compress(CompressFormat.JPEG, 100, os);				
-
-					editor.putString("path", filePath);
-					editor.commit();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}											
-				
-				break;	
-			case 4:
-
-				mHanFilter.setFilterType(data.getHanType());
-				
-				desBitmap = mHanFilter.transform(img);	
-				
-
-				editor.putBoolean("change", true);
-								
-
-				try {
-					FileOutputStream os = new FileOutputStream(new File(filePath));
-					desBitmap.compress(CompressFormat.JPEG, 100, os);				
-
-					editor.putString("path", filePath);
-					editor.commit();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}											
-				
-				break;				
 			default:
 				break;
 			}
+			
+			return output;
+//			String path = Environment.getExternalStorageDirectory().getPath() + "/KPOP/";
+//			File dir = new File(path);
+//			if(!dir.exists()){
+//				dir.mkdirs();
+//			}			
+//			String filePath = path + "img_out.jpg";
+//			
+//			int[] src = AndroidUtils.bitmapToIntArray(img);
+//			int width = img.getWidth();
+//			int height = img.getHeight();
+//			int[] dest = mSolarizeFilter.filter(src, width, height);		
+//			
+//			
+//			switch (data.getType()) {
+//			case 0:
+//
+//				Bitmap desBitmap = Bitmap.createBitmap(dest, width, height, Config.ARGB_8888);	
+//
+//
+//				editor.putBoolean("change", true);
+//								
+//
+//				
+//				
+//				try {
+//					FileOutputStream os = new FileOutputStream(new File(filePath));
+//					desBitmap.compress(CompressFormat.JPEG, 100, os);
+//					
+//
+//					editor.putString("path", filePath);
+//					editor.commit();
+//				} catch (FileNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}											
+//				
+//				break;
+//			case 1:
+//
+//				desBitmap = mAmaro.transform(img);	
+//				
+//
+//				editor.putBoolean("change", true);
+//								
+//
+//				try {
+//					FileOutputStream os = new FileOutputStream(new File(filePath));
+//					desBitmap.compress(CompressFormat.JPEG, 100, os);				
+//
+//					editor.putString("path", filePath);
+//					editor.commit();
+//				} catch (FileNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}											
+//				
+//				break;
+//			case 2:
+//
+//				desBitmap = mEarlyBird.transform(img, getResources());	
+//
+//
+//				editor.putBoolean("change", true);
+//								
+//
+//				try {
+//					FileOutputStream os = new FileOutputStream(new File(filePath));
+//					desBitmap.compress(CompressFormat.JPEG, 100, os);				
+//
+//					editor.putString("path", filePath);
+//					editor.commit();
+//				} catch (FileNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}											
+//				
+//				break;
+//			case 3:
+//
+//				
+//				desBitmap = mLomoFi.transform(img);	
+//				
+//
+//				editor.putBoolean("change", true);
+//								
+//
+//				try {
+//					FileOutputStream os = new FileOutputStream(new File(filePath));
+//					desBitmap.compress(CompressFormat.JPEG, 100, os);				
+//
+//					editor.putString("path", filePath);
+//					editor.commit();
+//				} catch (FileNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}											
+//				
+//				break;	
+//			case 4:
+//
+//				mHanFilter.setFilterType(data.getHanType());
+//				
+//				desBitmap = mHanFilter.transform(img);	
+//				
+//
+//				editor.putBoolean("change", true);
+//								
+//
+//				try {
+//					FileOutputStream os = new FileOutputStream(new File(filePath));
+//					desBitmap.compress(CompressFormat.JPEG, 100, os);				
+//
+//					editor.putString("path", filePath);
+//					editor.commit();
+//				} catch (FileNotFoundException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}											
+//				
+//				break;				
+//			default:
+//				break;
+//			}
 					
-			return filePath;
+//			return filePath;
 		}
 		
 	}
@@ -551,4 +603,5 @@ public class ImageProcessingActivity extends PreferenceActivity {
 			this.mLoadingDialog = null;
 		}
 	}	
+
 }
